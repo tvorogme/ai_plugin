@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ExtensionManifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ExtensionBundleId="com.adobe.vkusvill"
+                   ExtensionBundleName="UI" ExtensionBundleVersion="1.0.0" Version="4.0">
+    <ExtensionList>
+        <Extension Id="com.adobe.vkusvill.extension" Version="1.0"/>
+        <!--<Extension Id="com.adobe.vkusvill.update_extension" Version="1.0"/>-->
+    </ExtensionList>
+    <ExecutionEnvironment>
+        <HostList>
+            <Host Name="ILST" Version="17.0"/>
+        </HostList>
+        <LocaleList>
+            <Locale Code="All"/>
+        </LocaleList>
+        <RequiredRuntimeList>
+            <RequiredRuntime Name="CSXS" Version="4.0"/>
+        </RequiredRuntimeList>
+    </ExecutionEnvironment>
+    <DispatchInfoList>
+        <Extension Id="com.adobe.vkusvill.update_extension">
+            <DispatchInfo>
+                <Resources>
+                    <MainPath>./html/update.html</MainPath>
+                </Resources>
+                <Lifecycle>
+                    <AutoVisible>true</AutoVisible>
+                </Lifecycle>
+                <UI>
+                    <Type>Panel</Type>
+                    <Menu>ВкусВилл Обновить</Menu>
+                    <Geometry>
+                        <Size>
+                            <Height>50</Height>
+                            <Width>200</Width>
+                        </Size>
+                        <MinSize>
+                            <Height>50</Height>
+                            <Width>200</Width>
+                        </MinSize>
+                    </Geometry>
+                </UI>
+            </DispatchInfo>
+        </Extension>
+
+        <Extension Id="com.adobe.vkusvill.extension">
+            <DispatchInfo>
+                <Resources>
+                    <MainPath>./html/index.html</MainPath>
+                    <CEFCommandLine>
+                        <Parameter>--enable-speech-input</Parameter>
+                        <Parameter>--enable-media-stream</Parameter>
+                        <Parameter>--enable-nodejs</Parameter>
+                    </CEFCommandLine>
+                </Resources>
+                <Lifecycle>
+                    <AutoVisible>true</AutoVisible>
+                </Lifecycle>
+                <UI>
+                    <Type>Panel</Type>
+                    <Menu>ВкусВилл</Menu>
+                    <Geometry>
+                        <Size>
+                            <Height>200</Height>
+                            <Width>100</Width>
+                        </Size>
+                        <MinSize>
+                            <Height>100</Height>
+                            <Width>200</Width>
+                        </MinSize>
+                    </Geometry>
+                </UI>
+            </DispatchInfo>
+        </Extension>
+    </DispatchInfoList>
+</ExtensionManifest>

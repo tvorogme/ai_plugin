@@ -1,0 +1,36 @@
+body {
+    font-family: "Open Sans", Arial, Helvetica, Sans-Serif;
+}
+
+#close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+h1 {
+    width: 100%;
+    text-align: center;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    color: green;
+    font-size: 1.1rem;
+
+}
+
+#fix_font {
+    text-align: center;
+    width: 100%;
+    display: block;
+    cursor: pointer;
+}
+
+#fix_font:hover{
+    text-decoration: underline;
+}
+
+#close:hover{
+    text-decoration: underline;
+}
