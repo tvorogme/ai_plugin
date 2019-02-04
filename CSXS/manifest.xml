@@ -34,11 +34,11 @@
                     <Menu>ВкусВилл Обновить</Menu>
                     <Geometry>
                         <Size>
-                            <Height>50</Height>
+                            <Height>75</Height>
                             <Width>200</Width>
                         </Size>
                         <MinSize>
-                            <Height>50</Height>
+                            <Height>75</Height>
                             <Width>200</Width>
                         </MinSize>
                     </Geometry>
