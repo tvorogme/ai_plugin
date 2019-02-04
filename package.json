@@ -1,0 +1,28 @@
+{
+  "name": "com.adobe.vkusvill.extension",
+  "version": "1.0.0",
+  "main": "js/main.js",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.3",
+    "request": "^2.85.0"
+  },
+  "devDependencies": {
+    "fstream": "^1.0.11",
+    "unzip": "^0.1.11"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tvorogme/ai_plugin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tvorogme/ai_plugin/issues"
+  },
+  "homepage": "https://github.com/tvorogme/ai_plugin#readme",
+  "description": ""
+}

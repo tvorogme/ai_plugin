@@ -23,10 +23,6 @@ const range = (start, stop, step) => {
 
 const words_to_fix = ['масса нетто', 'срок годности', 'масса нетто:', 'срок годности:', 'объем', 'объём', 'объем:', 'объём:'];
 
-function run(script, resolve) {
-    return new CSInterface().evalScript(script, resolve);
-}
-
 function mapOverChars(textFrameIndex, toFixLength, charIndex, toUpper = true) {
     const textFrameTemplate = `app.activeDocument.textFrames[${textFrameIndex}].textRange`;
 
@@ -85,6 +81,4 @@ function fixFonts(e) {
 
         })
     });
-
-
 }

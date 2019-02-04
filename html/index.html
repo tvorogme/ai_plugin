@@ -7,16 +7,24 @@
     <title>ВкусВилл</title>
     <link href="../css/main_tylesheet.css" type="text/css" rel="stylesheet">
     <script src="../js/CSInterface.js" type="text/javascript"></script>
-    <script src="../js/main.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        function run(script, resolve) {
+            return new CSInterface().evalScript(script, resolve);
+        }
+    </script>
 </head>
 
 <body>
 <a id="close" onclick="new CSInterface().closeExtension();">X</a>
 
-    <h1 id="status">Все хорошо</h1>
-    <a id="fix_font" onclick="fixFonts()">Исправить шрифты</a>
+<h1 id="status">Все хорошо</h1>
+<a id="fix_font" onclick="fixFonts()">Исправить шрифты</a>
+<button onclick="download();">Скачать плагин</button>
 
 <p id="js_output"></p>
+
+<script src="../js/main.js" type="text/javascript"></script>
+<script src="../js/update.js" type="text/javascript"></script>
 </body>
 
 </html>
