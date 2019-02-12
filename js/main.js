@@ -66,69 +66,71 @@ function mapOverChars(textFrameIndex, toFixLength, charIndex, toUpper = true) {
     return true
 }
 
-let words_to_fix = [];
 
 function fixFonts(e) {
+    let words_to_fix = [];
+
     downlodFile('https://raw.githubusercontent.com/tvorogme/ai_plugin/master/font_fix', (data) => {
-        words_to_fix = data.split('\n').slice(0, -1).map(fixBeforeRegex).map(toRegex);
-    });
+        words_to_fix = data.split('\n').slice(0, -1).map(word => word.toLowerCase()).map(fixBeforeRegex).map(toRegex);
+        // достаем длину текст фреймов
+        run('app.activeDocument.textFrames.length', (textRangeLength) => {
 
-    // достаем длину текст фреймов
-    run('app.activeDocument.textFrames.length', (textRangeLength) => {
+            // для каждого фрейма
+            range(parseInt(textRangeLength)).map((textFrameIndex) => {
+                console.log(words_to_fix);
+                // посмотрим на текст
+                run(`app.activeDocument.textFrames[${textFrameIndex}].textRange.contents`, (text) => {
+                    // сравним его с тем, который нужно преобразовать
+                    const lowerText = text.toLowerCase();
+                    const founded_words = [].concat.apply([],
+                        words_to_fix.map(regex => lowerText.match(regex)));
 
-        // для каждого фрейма
-        range(parseInt(textRangeLength)).map((textFrameIndex) => {
+                    // для каждого слова
+                    founded_words.map((textToFix) => {
 
-            // посмотрим на текст
-            run(`app.activeDocument.textFrames[${textFrameIndex}].textRange.contents`, (text) => {
-                // сравним его с тем, который нужно преобразовать
-                const lowerText = text.toLowerCase();
-                const founded_words = [].concat.apply([],
-                    words_to_fix.map(regex => lowerText.match(regex)));
+                        // если оно есть в тексте
+                        if (lowerText.indexOf(textToFix) !== -1) {
 
-                // для каждого слова
-                founded_words.map((textToFix) => {
+                            // пофиксим основное слово
+                            mapOverChars(textFrameIndex, textToFix.length, lowerText.indexOf(textToFix));
 
-                    // если оно есть в тексте
-                    if (lowerText.indexOf(textToFix) !== -1) {
+                            // // Найдем где заканчивается последнее слово
+                            // const main_word_end = lowerText.indexOf(textToFix) + textToFix.length;
+                            //
+                            // // Найдем где заканчивается предложение
+                            // const text_end_on = lowerText.slice(
+                            //     lowerText.indexOf(textToFix) + textToFix.length).indexOf('.');
+                            //
+                            // // пофиксим все слова после основного слова
+                            // mapOverChars(textFrameIndex, text_end_on + 1, main_word_end)
+                        }
+                    });
 
-                        // пофиксим основное слово
-                        mapOverChars(textFrameIndex, textToFix.length, lowerText.indexOf(textToFix));
+                    // const founded_words_to_replace = [].concat.apply([],
+                    //     words_to_replace_keys.map(regex => lowerText.match(regex)));
+                    //
+                    // // для каждого слова
+                    // founded_words_to_replace.map((textToReplace) => {
+                    //
+                    //     // если оно есть в тексте
+                    //     if (lowerText.indexOf(textToReplace) !== -1) {
+                    //
+                    //         // пофиксим основное слово
+                    //         mapOverChars(textFrameIndex, textToFix.length, lowerText.indexOf(textToFix));
+                    //
+                    //     }
+                    // });
 
-                        // // Найдем где заканчивается последнее слово
-                        // const main_word_end = lowerText.indexOf(textToFix) + textToFix.length;
-                        //
-                        // // Найдем где заканчивается предложение
-                        // const text_end_on = lowerText.slice(
-                        //     lowerText.indexOf(textToFix) + textToFix.length).indexOf('.');
-                        //
-                        // // пофиксим все слова после основного слова
-                        // mapOverChars(textFrameIndex, text_end_on + 1, main_word_end)
-                    }
+                    document.getElementById('status').innerHTML = 'Успешно';
+
+                    setTimeout(() => document.getElementById('status').innerHTML = 'Все хорошо', 3000)
                 });
 
-                // const founded_words_to_replace = [].concat.apply([],
-                //     words_to_replace_keys.map(regex => lowerText.match(regex)));
-                //
-                // // для каждого слова
-                // founded_words_to_replace.map((textToReplace) => {
-                //
-                //     // если оно есть в тексте
-                //     if (lowerText.indexOf(textToReplace) !== -1) {
-                //
-                //         // пофиксим основное слово
-                //         mapOverChars(textFrameIndex, textToFix.length, lowerText.indexOf(textToFix));
-                //
-                //     }
-                // });
-
-                document.getElementById('status').innerHTML = 'Успешно';
-
-                setTimeout(() => document.getElementById('status').innerHTML = 'Все хорошо', 3000)
-            });
-
-        })
+            })
+        });
     });
+
+
 }
 
 //
