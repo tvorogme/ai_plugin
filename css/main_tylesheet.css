@@ -3,11 +3,12 @@ body {
 }
 
 #close {
-    position: absolute;
+    position: fixed;
     top: 10px;
-    right: 10px;
     font-size: 1rem;
+    width: 96vw;
     cursor: pointer;
+    text-align: right;
 }
 
 h1 {
@@ -20,17 +21,17 @@ h1 {
 
 }
 
-#fix_font {
+a {
     text-align: center;
     width: 100%;
     display: block;
     cursor: pointer;
 }
 
-#fix_font:hover{
+a:hover {
     text-decoration: underline;
 }
 
-#close:hover{
+#close:hover {
     text-decoration: underline;
 }
