@@ -68,10 +68,23 @@ function mapOverChars(textFrameIndex, toFixLength, charIndex, toUpper = true) {
 
 let words_to_fix = [];
 
+let words_to_change = [];
+
 function fixFonts(e) {
     downlodFile('https://raw.githubusercontent.com/tvorogme/ai_plugin/master/font_fix', (data) => {
         words_to_fix = data.split('\n').slice(0, -1).map(fixBeforeRegex).map(toRegex);
     });
+
+    downlodFile('https://raw.githubusercontent.com/tvorogme/ai_plugin/master/words_fix', (data) => {
+        words_to_change = data.split('\n').slice(0, -1).map((e, index) => words_to_change[index] = (e + '').split(';'));
+        words_to_change.map((element, index) => {
+            words_to_change[index].push(element[0].length);
+            words_to_change[index][0] = toRegex(fixBeforeRegex(element[0]));
+            words_to_change[index][1] = element[1];
+
+        })
+    });
+
 
     // достаем длину текст фреймов
     run('app.activeDocument.textFrames.length', (textRangeLength) => {
@@ -81,10 +94,26 @@ function fixFonts(e) {
 
             // посмотрим на текст
             run(`app.activeDocument.textFrames[${textFrameIndex}].textRange.contents`, (text) => {
+
                 // сравним его с тем, который нужно преобразовать
                 const lowerText = text.toLowerCase();
+
                 const founded_words = [].concat.apply([],
                     words_to_fix.map(regex => lowerText.match(regex)));
+
+                words_to_change.map((regex)  => {
+                    const index = lowerText.search(regex[0]);
+                    console.log("text", lowerText);
+                    console.log("regex", regex);
+                    console.log(index);
+                    if(index !== -1)
+                    {
+                        console.log("regex", regex);
+                        console.log("new text", text.slice(0, index) + regex[1] + text.slice(index+regex[2], text.length));
+                        //console.log("string, ", `app.activeDocument.textFrames[${textFrameIndex}].textRange.contents="${text.replace(regex[0], regex[1])}"`);
+                        run(`app.activeDocument.textFrames[${textFrameIndex}].textRange.contents="${text.slice(0, index) + regex[1] + text.slice(index+regex[2], text.length)}"`);
+                    }
+                });
 
                 // для каждого слова
                 founded_words.map((textToFix) => {
