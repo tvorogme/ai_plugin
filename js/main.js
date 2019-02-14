@@ -123,7 +123,14 @@ function fixFonts(e) {
                                     console.log("paragraphIndex:", paragraphIndex, "text:", paragraphText);
                                     words_to_change.map((regex) => {
                                         console.log("regex:", regex);
-                                        paragraphText = paragraphText.replace(regex[0], regex[1]);
+                                        paragraphText = paragraphText.replace(regex[0], (found) => {
+                                            if(regex[1].indexOf('*') !== -1){
+                                                let res = regex[1].split(" ");
+                                                let sfound = found.split(" ");
+                                                return res.map((elem, index) => res[index] = res[index] === "*" && index < sfound.length-1 ? sfound[index] : elem).join(" ");
+                                            }
+                                            return regex[1];
+                                        });
                                     });
                                     run(`app.activeDocument.textFrames[${textFrameIndex}].paragraphs[${paragraphIndex}].contents="${paragraphText}"`);
                                 });
