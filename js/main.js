@@ -41,7 +41,7 @@ const regexFixChars = ['.', '^', '$', '+', '-', '?', '(', ')', '[', ']', '{', '}
 const replaceAll = (item, search, replace) => item.split(search).join(replace);
 
 // Преобразовать в регекс
-const toRegex = e => new RegExp(replaceAll(replaceAll(e, ' *', ' (\\S*){1}'), '* ', '(\\S*){1} '), 'g');
+const toRegex = e => new RegExp(replaceAll(replaceAll(e, ' *', ' (\\S*){1}'), '* ', '(\\S*){1} '), 'gi');
 
 // Перед преобразованием пофиксим похожие символы
 const fixBeforeRegex = (item) => [replaceAll(item, '\\', '\\\\'), ...regexFixChars].reduce(
@@ -74,15 +74,15 @@ function fixFonts(e) {
 
     downlodFile('https://raw.githubusercontent.com/tvorogme/ai_plugin/master/font_fix', (data) => {
         words_to_fix = data.split('\n').slice(0, -1).map(word => word.toLowerCase()).map(fixBeforeRegex).map(toRegex);
-        downlodFile('https://raw.githubusercontent.com/tvorogme/ai_plugin/master/words_fix', (data) => {
-            words_to_change = data.split('\n').slice(0, -1).map((e, index) => words_to_change[index] = (e + '').split(';'));
+        downlodFile('https://raw.githubusercontent.com/tvorogme/ai_plugin/master/words_fix', (data_change) => {
+            console.log("data", data_change);
+            words_to_change = data_change.split('\n').slice(0, -1).map((e, index) => words_to_change[index] = (e + '').split(';'));
             words_to_change.map((element, index) => {
-                words_to_change[index].push(element[0].length);
+                //words_to_change[index].push(element[0].length);
                 words_to_change[index][0] = toRegex(fixBeforeRegex(element[0]));
                 words_to_change[index][1] = element[1];
-
             });
-
+            console.log(words_to_change);
             // достаем длину текст фреймов
             run('app.activeDocument.textFrames.length', (textRangeLength) => {
 
@@ -91,7 +91,6 @@ function fixFonts(e) {
                     // посмотрим на текст
                     run(`app.activeDocument.textFrames[${textFrameIndex}].textRange.contents`, (text) => {
                         // сравним его с тем, который нужно преобразовать
-                        console.log(run(`app.activeDocument.textFrames[${textFrameIndex}].paragraphs[0]`));
                         const lowerText = text.toLowerCase();
                         const founded_words = [].concat.apply([],
                             words_to_fix.map(regex => lowerText.match(regex)));
@@ -116,22 +115,16 @@ function fixFonts(e) {
                                 // mapOverChars(textFrameIndex, text_end_on + 1, main_word_end)
                             }
                         });
+
                         run(`app.activeDocument.textFrames[${textFrameIndex}].paragraphs.length`, (paragraphsLength) => {
-                            console.log("textFrameIndex:", textFrameIndex, "Paragraphs count:", paragraphsLength);
                             range(parseInt(paragraphsLength)).map((paragraphIndex) => {
                                 run(`app.activeDocument.textFrames[${textFrameIndex}].paragraphs[${paragraphIndex}].contents`, (paragraphText) => {
                                     console.log("paragraphIndex:", paragraphIndex, "text:", paragraphText);
                                     words_to_change.map((regex) => {
-                                        const lowParagraphText = paragraphText.toLowerCase();
-
-                                        let index = lowParagraphText.search(regex[0]);
-
-                                        if (index !== -1) {
-                                            run(`app.activeDocument.textFrames[${textFrameIndex}].paragraphs[${paragraphIndex}].contents="${paragraphText.slice(0, index) + regex[1] + text.slice(index + regex[2], paragraphText.length)}"`);
-                                            index = lowParagraphText.search(regex[0]);
-                                            console.log(index);
-                                        }
+                                        console.log("regex:", regex);
+                                        paragraphText = paragraphText.replace(regex[0], regex[1]);
                                     });
+                                    run(`app.activeDocument.textFrames[${textFrameIndex}].paragraphs[${paragraphIndex}].contents="${paragraphText}"`);
                                 });
                             });
                         });
