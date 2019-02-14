@@ -9,7 +9,9 @@
   },
   "devDependencies": {
     "fstream": "^1.0.11",
-    "unzip": "^0.1.11"
+    "node-stream-zip": "^1.8.0",
+    "unzip": "^0.1.11",
+    "unzipper": "^0.9.11"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
