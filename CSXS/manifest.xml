@@ -35,11 +35,11 @@
                     <Geometry>
                         <Size>
                             <Height>75</Height>
-                            <Width>200</Width>
+                            <Width>250</Width>
                         </Size>
                         <MinSize>
                             <Height>75</Height>
-                            <Width>200</Width>
+                            <Width>250</Width>
                         </MinSize>
                     </Geometry>
                 </UI>

@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="af94d4b2-a63e-4cfd-9b8a-a32f4f165a1c" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/main.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/update.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/update.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CSXS/manifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/CSXS/manifest.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -39,11 +35,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/CSXS/manifest.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="680">
-              <caret line="40" column="38" selection-start-line="40" selection-start-column="38" selection-end-line="40" selection-end-column="38" />
+            <state relative-caret-position="646">
+              <caret line="41" column="37" selection-start-line="41" selection-start-column="37" selection-end-line="41" selection-end-column="37" />
             </state>
           </provider>
         </entry>
@@ -75,7 +71,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/update.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="578">
@@ -87,7 +83,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/main.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="841">
+            <state relative-caret-position="-230">
               <caret line="87" column="45" selection-start-line="87" selection-start-column="45" selection-end-line="87" selection-end-column="45" />
             </state>
           </provider>
@@ -145,7 +141,6 @@
         <option value="$PROJECT_DIR$/jsx/index.jsx" />
         <option value="$PROJECT_DIR$/jsx/main2.jsx" />
         <option value="$PROJECT_DIR$/package.json" />
-        <option value="$PROJECT_DIR$/CSXS/manifest.xml" />
         <option value="$PROJECT_DIR$/html/update.html" />
         <option value="$PROJECT_DIR$/html/lol.html" />
         <option value="$PROJECT_DIR$/html/index.html" />
@@ -153,6 +148,7 @@
         <option value="$PROJECT_DIR$/css/main_tylesheet.css" />
         <option value="$PROJECT_DIR$/js/main.js" />
         <option value="$PROJECT_DIR$/js/update.js" />
+        <option value="$PROJECT_DIR$/CSXS/manifest.xml" />
       </list>
     </option>
   </component>
@@ -174,6 +170,11 @@
             <path>
               <item name="ai_plugin" type="b2602c69:ProjectViewProjectNode" />
               <item name="ai_plugin" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ai_plugin" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ai_plugin" type="462c0819:PsiDirectoryNode" />
+              <item name="CSXS" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -229,12 +230,12 @@
       <workItem from="1549877904711" duration="5055000" />
       <workItem from="1549957573513" duration="2607000" />
       <workItem from="1549972580417" duration="241000" />
-      <workItem from="1550156770219" duration="2370000" />
+      <workItem from="1550156770219" duration="3629000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="69824000" />
+    <option name="totallyTimeSpent" value="71083000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="2062" height="1126" extended-state="6" />
@@ -284,13 +285,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/CSXS/manifest.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="680">
-          <caret line="40" column="38" selection-start-line="40" selection-start-column="38" selection-end-line="40" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/package.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
@@ -333,17 +327,24 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/js/main.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="841">
-          <caret line="87" column="45" selection-start-line="87" selection-start-column="45" selection-end-line="87" selection-end-column="45" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/js/update.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="578">
           <caret line="34" column="23" lean-forward="true" selection-start-line="34" selection-start-column="23" selection-end-line="34" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/main.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-230">
+          <caret line="87" column="45" selection-start-line="87" selection-start-column="45" selection-end-line="87" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CSXS/manifest.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="646">
+          <caret line="41" column="37" selection-start-line="41" selection-start-column="37" selection-end-line="41" selection-end-column="37" />
         </state>
       </provider>
     </entry>
