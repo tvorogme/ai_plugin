@@ -74,7 +74,7 @@ function fixFonts(e) {
         downlodFile('https://raw.githubusercontent.com/tvorogme/ai_plugin/master/words_fix', (data_change) => {
             words_to_change = data_change.split('\n').slice(0, -1).map((e, index) => words_to_change[index] = (e + '').split(';'));
             words_to_change.map((element, index) => {
-                //words_to_change[index].push(element[0].length);
+                words_to_change[index].push(element[0]);
                 words_to_change[index][0] = toRegex(fixBeforeRegex(element[0]));
                 words_to_change[index][1] = element[1];
             });
@@ -86,6 +86,65 @@ function fixFonts(e) {
 
                     // посмотрим на текст
                     run(`app.activeDocument.textFrames[${textFrameIndex}].textRange.contents`, (text) => {
+
+                        //достаём количество параграфов
+                        run(`app.activeDocument.textFrames[${textFrameIndex}].paragraphs.length`, (paragraphsLength) => {
+
+                            //замена слов
+                            //бежим по параграфам
+                            range(parseInt(paragraphsLength)).map((paragraphIndex) => {
+
+                                //достаём текст каждого параграфа
+                                run(`app.activeDocument.textFrames[${textFrameIndex}].paragraphs[${paragraphIndex}].contents`, (paragraphText) => {
+
+                                    let flag = false; //была ли сделана хотя бы 1 замена
+
+                                    //бежим по словам, котрые хотим заемнить
+                                    words_to_change.map((regex) => {
+
+                                        //проверка на то есть ли регексп в тексте
+                                        if (paragraphText.search(regex[0]) !== -1) {
+
+                                            //будет сделана замена
+                                            flag = true;
+                                            console.log(regex[2]);
+                                            //заменеям все регексы
+                                            paragraphText = paragraphText.replace(regex[0], (found) => {
+
+                                                //проверка на то, есть ли в регексе *
+                                                if (regex[1].indexOf('*') !== -1) {
+                                                    //если да то в финальную строку подставляем слова которые нужно оставить (работает плохо)
+                                                    let res = regex[1].split(" ");
+                                                    let replaces = [];
+                                                    let sfound = found.split(" ");
+
+                                                    regex[2].split(" ").map((elem, index) => {
+                                                        if(elem === "*")
+                                                            replaces.push(sfound[index]);
+                                                    });
+
+                                                    console.log(replaces);
+
+                                                    let starIter = 0;
+                                                    range(res.length).map((index) =>{
+                                                       if(res[index] === "*")
+                                                           res[index] = replaces[starIter++];
+                                                    });
+                                                    return res.join(" ");
+                                                }
+                                                //если нет то просто заменяем на нужную строку
+                                                return regex[1];
+                                            });
+                                        }
+                                    });
+                                    //меняем текст только если была замена, чтобы лишний раз стили не портить
+                                    if (flag) {
+                                        run(`app.activeDocument.textFrames[${textFrameIndex}].paragraphs[${paragraphIndex}].contents="${paragraphText}"`);
+                                    }
+                                });
+                            });
+                        });//конец замены слов
+
                         // сравним его с тем, который нужно преобразовать
                         const lowerText = text.toLowerCase();
                         const founded_words = [].concat.apply([],
@@ -112,48 +171,7 @@ function fixFonts(e) {
                             }
                         });
 
-                        //достаём количество параграфов
-                        run(`app.activeDocument.textFrames[${textFrameIndex}].paragraphs.length`, (paragraphsLength) => {
 
-                            //бежим по параграфам
-                            range(parseInt(paragraphsLength)).map((paragraphIndex) => {
-
-                                //достаём текст каждого параграфа
-                                run(`app.activeDocument.textFrames[${textFrameIndex}].paragraphs[${paragraphIndex}].contents`, (paragraphText) => {
-
-                                    let flag = false; //была ли сделана хотя бы 1 замена
-
-                                    //бежим по словам, котрые хотим заемнить
-                                    words_to_change.map((regex) => {
-
-                                        //проверка на то есть ли регексп в тексте
-                                        if (paragraphText.search(regex[0]) !== -1) {
-
-                                            //будет сделана замена
-                                            flag = true;
-
-                                            //заменеям все регексы
-                                            paragraphText = paragraphText.replace(regex[0], (found) => {
-
-                                                //проверка на то, есть ли в регексе
-                                                if (regex[1].indexOf('*') !== -1) {
-                                                    //если да то в финальную строку подставляем слова которые нужно оставить (работает плохо)
-                                                    let res = regex[1].split(" ");
-                                                    let sfound = found.split(" ");
-                                                    return res.map((elem, index) => res[index] = res[index] === "*" && index < sfound.length - 1 ? sfound[index] : elem).join(" ");
-                                                }
-                                                //если нет то просто заменяем на нужную строку
-                                                return regex[1];
-                                            });
-                                        }
-                                    });
-                                    //меняем текст только если была замена, чтобы лишний раз стили не портить
-                                    if (flag) {
-                                        run(`app.activeDocument.textFrames[${textFrameIndex}].paragraphs[${paragraphIndex}].contents="${paragraphText}"`);
-                                    }
-                                });
-                            });
-                        });
 
 
                         // const founded_words_to_replace = [].concat.apply([],
