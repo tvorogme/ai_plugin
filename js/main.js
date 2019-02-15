@@ -107,7 +107,6 @@ function fixFonts(e) {
 
                                             //будет сделана замена
                                             flag = true;
-                                            console.log(regex[2]);
                                             //заменеям все регексы
                                             paragraphText = paragraphText.replace(regex[0], (found) => {
 
@@ -122,8 +121,6 @@ function fixFonts(e) {
                                                         if(elem === "*")
                                                             replaces.push(sfound[index]);
                                                     });
-
-                                                    console.log(replaces);
 
                                                     let starIter = 0;
                                                     range(res.length).map((index) =>{
