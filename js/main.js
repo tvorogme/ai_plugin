@@ -71,6 +71,8 @@ function fixFonts(e) {
 
     downlodFile('https://raw.githubusercontent.com/tvorogme/ai_plugin/master/font_fix', (data) => {
         words_to_fix = data.split('\n').slice(0, -1).map(word => word.toLowerCase()).map(fixBeforeRegex).map(toRegex);
+
+        //фразы для замены
         downlodFile('https://raw.githubusercontent.com/tvorogme/ai_plugin/master/words_fix', (data_change) => {
             words_to_change = data_change.split('\n').slice(0, -1).map((e, index) => words_to_change[index] = (e + '').split(';'));
             words_to_change.map((element, index) => {
@@ -78,6 +80,7 @@ function fixFonts(e) {
                 words_to_change[index][0] = toRegex(fixBeforeRegex(element[0]));
                 words_to_change[index][1] = element[1];
             });
+            console.log("Words_to_change:", words_to_change);
             // достаем длину текст фреймов
             run('app.activeDocument.textFrames.length', (textRangeLength) => {
 
@@ -99,15 +102,18 @@ function fixFonts(e) {
 
                                     let flag = false; //была ли сделана хотя бы 1 замена
 
+
                                     //бежим по словам, котрые хотим заемнить
                                     words_to_change.map((regex) => {
 
                                         //проверка на то есть ли регексп в тексте
                                         if (paragraphText.search(regex[0]) !== -1) {
+                                            console.log("Text:", paragraphText, "\nRegex: ", regex);
 
                                             //будет сделана замена
                                             flag = true;
                                             //заменеям все регексы
+
                                             paragraphText = paragraphText.replace(regex[0], (found) => {
 
                                                 //проверка на то, есть ли в регексе *
