@@ -63,6 +63,11 @@ function mapOverChars(textFrameIndex, toFixLength, charIndex, toUpper = true) {
     return true
 }
 
+function getVersion() {
+    downlodFile('https://raw.githubusercontent.com/tvorogme/ai_plugin/master/version', (version) => {
+        document.getElementById('version').innerHTML = 'Версия '+version;
+    });
+}
 
 function fixFonts(e) {
 

@@ -11,6 +11,11 @@ body {
     text-align: right;
 }
 
+#version {
+    position: fixed;
+    bottom: 7px;
+}
+
 h1 {
     width: 100%;
     text-align: center;
