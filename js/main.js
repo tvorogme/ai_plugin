@@ -41,7 +41,7 @@ const regexFixChars = ['.', '^', '$', '+', '-', '?', '(', ')', '[', ']', '{', '}
 const replaceAll = (item, search, replace) => item.split(search).join(replace);
 
 // Преобразовать в регекс
-const toRegex = e => new RegExp(replaceAll(replaceAll(e, ' *', ' (\\S*){1}'), '* ', '(\\S*){1} '), 'gi');
+const toRegex = e => new RegExp(replaceAll(replaceAll(e, ']*', '](\\S*){1}'), '*[', '(\\S*){1}['), 'gi');
 
 // Перед преобразованием пофиксим похожие символы
 const fixBeforeRegex = (item) => replaceAll([replaceAll(item, '\\', '\\\\'), ...regexFixChars].reduce(
@@ -73,12 +73,22 @@ function fixFonts(e) {
 
         //фразы для замены
         downlodFile('https://raw.githubusercontent.com/tvorogme/ai_plugin/master/words_fix', (data_change) => {
+            console.log(data_change);
             words_to_change = data_change.split('\n').slice(0, -1).map((e, index) => words_to_change[index] = (e + '').split(';'));
             words_to_change.map((element, index) => {
-                words_to_change[index].push(element[0]); //исходная строка поиска
-                words_to_change[index].push(toRegex(fixBeforeRegex(element[1]))); //регексп строки поиска
-                words_to_change[index][0] = toRegex(fixBeforeRegex(element[0])); //регексп поиска
-                words_to_change[index][1] = element[1]; //строка для замены
+                let newElem = {};
+                newElem.searchString = element[0]; //исходная строка поиска
+                newElem.searchRegexp = toRegex(fixBeforeRegex(element[0])); //регексп строки поиска
+
+                newElem.replaceString = element[1]; //строка для замены
+                newElem.replaceRegexp = toRegex(fixBeforeRegex(element[1])); //регексп поиска
+
+                words_to_change[index] = newElem;
+
+                // words_to_change[index].push(element[0]);
+                // words_to_change[index].push(toRegex(fixBeforeRegex(element[1])));
+                // words_to_change[index]. = ;
+                // words_to_change[index][1] = element[1];
             });
             console.log("Words_to_change:", words_to_change);
             // достаем длину текст фреймов
@@ -103,9 +113,12 @@ function fixFonts(e) {
                                     let flag = false; //была ли сделана хотя бы 1 замена
 
                                     words_to_change.map((regex) => {
-                                        if (paragraphText.search(regex[3]) !== -1 && regex[1].indexOf('*') === -1 && regex[1].indexOf(regex[2]) !== -1) {
+                                        if (paragraphText.search(regex.replaceRegexp) !== -1 &&
+                                            regex.replaceString.indexOf('*') === -1 && regex.searchString.indexOf('*') === -1 &&
+                                            regex.replaceString.search(regex.searchRegexp) !== -1) {
+
                                             flag = true;
-                                            paragraphText = paragraphText.replace(regex[3], regex[2]);
+                                            paragraphText = paragraphText.replace(regex.replaceRegexp, regex.searchString);
                                         }
                                     });
 
@@ -113,9 +126,11 @@ function fixFonts(e) {
                                     //бежим по словам, котрые хотим заемнить
                                     words_to_change.map((regex) => {
 
-                                        console.log("Text:" + paragraphText + "\nFinding:" + regex[2] + "\nRegexp:" + regex[0] + "\nIndex:" + paragraphText.search(regex[0]));
+                                        console.log("Text:" + paragraphText + "\nFinding:" + regex.searchString +
+                                            "\nRegexp:" + regex.searchRegexp + "\nIndex:" + paragraphText.search(regex.searchRegexp));
+
                                         //проверка на то есть ли регексп в тексте
-                                        if (paragraphText.search(regex[0]) !== -1) {
+                                        if (paragraphText.search(regex.searchRegexp) !== -1) {
                                             console.log("Found");
                                             //console.log("Text:", paragraphText, "\nRegex: ", regex);
 
@@ -123,16 +138,17 @@ function fixFonts(e) {
                                             flag = true;
 
                                             //заменеям все регексы
-                                            paragraphText = paragraphText.replace(regex[0], (found) => {
+                                            paragraphText = paragraphText.replace(regex.searchRegexp, (found) => {
 
                                                 //проверка на то, есть ли в регексе *
-                                                if (regex[1].indexOf('*') !== -1) {
+                                                if (regex.replaceString.indexOf('*') !== -1) {
+
                                                     //если да то в финальную строку подставляем слова которые нужно оставить (работает плохо)
-                                                    let res = regex[1].split(" ");
+                                                    let res = regex.replaceString.split(" ");
                                                     let replaces = [];
                                                     let sfound = found.split(" ");
 
-                                                    regex[2].split(" ").map((elem, index) => {
+                                                    regex.searchString.split(" ").map((elem, index) => {
                                                         if (elem === "*")
                                                             replaces.push(sfound[index]);
                                                     });
@@ -146,7 +162,7 @@ function fixFonts(e) {
                                                 }
                                                 //если нет то просто заменяем на нужную строку
                                                 else {
-                                                    return regex[1];
+                                                    return regex.replaceString;
                                                 }
                                             });
                                         }
