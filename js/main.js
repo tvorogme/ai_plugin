@@ -44,8 +44,8 @@ const replaceAll = (item, search, replace) => item.split(search).join(replace);
 const toRegex = e => new RegExp(replaceAll(replaceAll(e, ' *', ' (\\S*){1}'), '* ', '(\\S*){1} '), 'gi');
 
 // Перед преобразованием пофиксим похожие символы
-const fixBeforeRegex = (item) => [replaceAll(item, '\\', '\\\\'), ...regexFixChars].reduce(
-    (item, fixItem) => replaceAll(item, fixItem));
+const fixBeforeRegex = (item) => replaceAll([replaceAll(item, '\\', '\\\\'), ...regexFixChars].reduce(
+    (item, fixItem) => replaceAll(item, fixItem, '\\' + fixItem)), " ", "[  ]");
 
 function mapOverChars(textFrameIndex, toFixLength, charIndex, toUpper = true) {
     const textFrameTemplate = `app.activeDocument.textFrames[${textFrameIndex}].textRange`;
@@ -65,7 +65,7 @@ function mapOverChars(textFrameIndex, toFixLength, charIndex, toUpper = true) {
 
 function getVersion() {
     downlodFile('https://raw.githubusercontent.com/tvorogme/ai_plugin/master/version', (version) => {
-        document.getElementById('version').innerHTML = 'Версия '+version;
+        document.getElementById('version').innerHTML = 'Версия ' + version;
     });
 }
 
@@ -81,9 +81,10 @@ function fixFonts(e) {
         downlodFile('https://raw.githubusercontent.com/tvorogme/ai_plugin/master/words_fix', (data_change) => {
             words_to_change = data_change.split('\n').slice(0, -1).map((e, index) => words_to_change[index] = (e + '').split(';'));
             words_to_change.map((element, index) => {
-                words_to_change[index].push(element[0]);
-                words_to_change[index][0] = toRegex(fixBeforeRegex(element[0]));
-                words_to_change[index][1] = element[1];
+                words_to_change[index].push(element[0]); //исходная строка поиска
+                words_to_change[index].push(toRegex(fixBeforeRegex(element[1]))); //регексп строки поиска
+                words_to_change[index][0] = toRegex(fixBeforeRegex(element[0])); //регексп поиска
+                words_to_change[index][1] = element[1]; //строка для замены
             });
             console.log("Words_to_change:", words_to_change);
             // достаем длину текст фреймов
@@ -107,18 +108,27 @@ function fixFonts(e) {
 
                                     let flag = false; //была ли сделана хотя бы 1 замена
 
+                                    words_to_change.map((regex) => {
+                                        if (paragraphText.search(regex[3]) !== -1 && regex[1].indexOf('*') === -1 && regex[1].indexOf(regex[2]) !== -1) {
+                                            flag = true;
+                                            paragraphText = paragraphText.replace(regex[3], regex[2]);
+                                        }
+                                    });
+
 
                                     //бежим по словам, котрые хотим заемнить
                                     words_to_change.map((regex) => {
 
+                                        console.log("Text:" + paragraphText + "\nFinding:" + regex[2] + "\nRegexp:" + regex[0] + "\nIndex:" + paragraphText.search(regex[0]));
                                         //проверка на то есть ли регексп в тексте
                                         if (paragraphText.search(regex[0]) !== -1) {
-                                            console.log("Text:", paragraphText, "\nRegex: ", regex);
+                                            console.log("Found");
+                                            //console.log("Text:", paragraphText, "\nRegex: ", regex);
 
                                             //будет сделана замена
                                             flag = true;
-                                            //заменеям все регексы
 
+                                            //заменеям все регексы
                                             paragraphText = paragraphText.replace(regex[0], (found) => {
 
                                                 //проверка на то, есть ли в регексе *
@@ -129,19 +139,21 @@ function fixFonts(e) {
                                                     let sfound = found.split(" ");
 
                                                     regex[2].split(" ").map((elem, index) => {
-                                                        if(elem === "*")
+                                                        if (elem === "*")
                                                             replaces.push(sfound[index]);
                                                     });
 
                                                     let starIter = 0;
-                                                    range(res.length).map((index) =>{
-                                                       if(res[index] === "*")
-                                                           res[index] = replaces[starIter++];
+                                                    range(res.length).map((index) => {
+                                                        if (res[index] === "*")
+                                                            res[index] = replaces[starIter++];
                                                     });
                                                     return res.join(" ");
                                                 }
                                                 //если нет то просто заменяем на нужную строку
-                                                return regex[1];
+                                                else {
+                                                    return regex[1];
+                                                }
                                             });
                                         }
                                     });
@@ -178,8 +190,6 @@ function fixFonts(e) {
                                 // mapOverChars(textFrameIndex, text_end_on + 1, main_word_end)
                             }
                         });
-
-
 
 
                         // const founded_words_to_replace = [].concat.apply([],
