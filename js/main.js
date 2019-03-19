@@ -22,6 +22,154 @@ const range = (start, stop, step) => {
     return result;
 };
 
+
+function getTextFrameFullText(textFrameIndex, textFrameLength, paragraphNumber, frameText) {
+    console.log("TextFrameIndex,", textFrameIndex, "TextFrameLength,", textFrameLength, "ParagraphNumber,", paragraphNumber);
+
+    run(`app.activeDocument.textFrames[${textFrameIndex}].paragraphs[${paragraphNumber}].contents`, (paragraphText) => {
+        console.log("Paragraph", paragraphNumber, "Text", paragraphText);
+
+        //добавляем текст текущего параграфа к строке
+        frameText += paragraphText;
+
+        //если это последний параграф, то вызываем функцию замены слов
+        if (paragraphNumber === textFrameLength - 1)
+            changeWords(textFrameIndex, frameText);
+        //иначе добавляем \n и вызываем функцию для следующего параграфа
+        else {
+            frameText += '\n';
+            getTextFrameFullText(textFrameIndex, textFrameLength, paragraphNumber + 1, frameText);
+        }
+    });
+
+}
+
+function changeWords(textFrameIndex, frameText) {
+    console.log(frameText);
+
+    //функция получения всех индексов вхождения регекспа в строке
+    function getAllIndexes(regex) {
+        let result;
+        let alreadyGood = [];
+        while (result = regex.exec(frameText)) {
+            alreadyGood.push(result.index);
+        }
+        return alreadyGood;
+    }
+
+    //функция замены текущего регекспа в тексте
+    function replaceCurrRegexp(searchString, searchRegexp, replaceString, replaceRegexp) {
+
+        //индексы вхождения искомого регекспа
+        const srIndexes = getAllIndexes(searchRegexp);
+
+        //индексы вхождения регекспа строки, на которую будем заменять(те, которые уже правильные)
+        const rrIndexes = getAllIndexes(replaceRegexp);
+
+        console.log("searchRegexp indexes", srIndexes);
+        console.log("replaceRegexp indexes", rrIndexes);
+
+        let replaceCount = 0;
+
+        //заменеям все вхождения
+        frameText = frameText.replace(searchRegexp, (found) => {
+
+            let rstring = replaceString;
+
+            replaceCount++;
+
+            //проверка на то, что текущее вхождение уже правильное, если да, то просто возвращаем его же
+            // если искомая строка содержит в себе строку для заминения, то в любом случае заменяем(первое условие)
+            if ( found.search(replaceRegexp) === -1 && rrIndexes.filter(
+                (rrIndex) => rrIndex <= srIndexes[replaceCount - 1] && rrIndex + found.length >= srIndexes[replaceCount - 1])
+                .length > 0) {
+                return found;
+            }
+
+            console.log("Found", found, "replaceString", rstring);
+
+            //проверка на то, есть ли в регексе *
+            if (rstring.indexOf('*') !== -1) {
+
+                //если да то в финальную строку подставляем слова которые нужно оставить (работает плохо)
+                let res = rstring.split(" ");
+                let replaces = [];
+                let sfound = found.split(new RegExp("[  ]*[\\n  ][  ]*"));
+
+                searchString.split(" ").map((elem, index) => {
+                    if (elem === "*") {
+                        replaces.push(sfound[index]);
+                        console.log("replaceing * with", sfound[index]);
+                    }
+                });
+
+                let starIter = 0;
+                range(res.length).map((index) => {
+                    if (res[index] === "*")
+                        res[index] = replaces[starIter++];
+                });
+                rstring = res.join(" ");
+            }
+
+            //проверка на переносы строки в заменяемом фрагменте
+            if (found.indexOf('\n') !== -1) {
+
+                let brakesIndexes = []; // индексы переносов, индекс - после какого по счету слова во вхождении стоит перено
+
+                let fsplit = found.split(new RegExp("[  ]*[\\n][  ]*"));
+
+                for (let i = 0; i < fsplit.length - 1; i++) {
+                    const prev = i === 0 ? 0 : brakesIndexes[brakesIndexes.length - 1];
+                    brakesIndexes.push(fsplit[i].split(new RegExp('[  ]', 'g')).length + prev);
+                }
+                console.log("Found ", brakesIndexes.length, "brakes with indexes", brakesIndexes);
+
+                let splitted = rstring.split(' ');
+                rstring = "";
+
+                let usedBrakes = 0;
+
+                for (let i = 0; i < splitted.length - 1; i++) {
+                    rstring += splitted[i];
+                    //если индекс есть в массиве индексов переносов, то склеиваем по '\n' иначе по ' '
+                    if (brakesIndexes.includes(i + 1)) {
+                        usedBrakes++;
+                        rstring += "\n";
+                    } else {
+                        rstring += " ";
+                    }
+                }
+                rstring += splitted[splitted.length - 1];
+                console.log("UsedBrakes", usedBrakes);
+
+                //добавление в конец строки неиспользованных переносов для сохранения кол-ва параграфов
+                for (let i = 0; i < brakesIndexes.length - usedBrakes; i++)
+                    rstring += "\n";
+            }
+            console.log("Final replaceString", rstring);
+            return rstring
+        });
+    }
+
+    words_to_change.map(regex => {
+        if (frameText.search(regex.searchRegexp) !== -1) {
+            replaceCurrRegexp(regex.searchString, regex.searchRegexp, regex.replaceString, regex.replaceRegexp);
+        }
+    });
+
+
+    console.log("New frameText", frameText);
+
+    const paragraphs = frameText.split("\n");
+
+    paragraphs.map((text, index) => {
+        run(`app.activeDocument.textFrames[${textFrameIndex}].paragraphs[${index}].contents`, (paragraphText) => {
+            if (text !== paragraphText)
+                run(`app.activeDocument.textFrames[${textFrameIndex}].paragraphs[${index}].contents="${text}"`);
+        });
+    })
+}
+
 // Скачать файл по ссылке
 const downlodFile = (url, func) => {
     https.get(url).on('response', (response) => {
@@ -41,11 +189,11 @@ const regexFixChars = ['.', '^', '$', '+', '-', '?', '(', ')', '[', ']', '{', '}
 const replaceAll = (item, search, replace) => item.split(search).join(replace);
 
 // Преобразовать в регекс
-const toRegex = e => new RegExp(replaceAll(replaceAll(e, ']*', '](\\S*){1}'), '*[', '(\\S*){1}['), 'gi');
+const toRegex = e => new RegExp(replaceAll(replaceAll(replaceAll(e, ' *', ' (\\S*){1}'), '* ', '(\\S*){1} '), " ", "[  ]*[\\n  ][  ]*"), 'gi');
 
 // Перед преобразованием пофиксим похожие символы
-const fixBeforeRegex = (item) => replaceAll([replaceAll(item, '\\', '\\\\'), ...regexFixChars].reduce(
-    (item, fixItem) => replaceAll(item, fixItem, '\\' + fixItem)), " ", "[  ]");
+const fixBeforeRegex = (item) => [replaceAll(item, '\\', '\\\\'), ...regexFixChars].reduce(
+    (item, fixItem) => replaceAll(item, fixItem, '\\' + fixItem));
 
 function mapOverChars(textFrameIndex, toFixLength, charIndex, toUpper = true) {
     const textFrameTemplate = `app.activeDocument.textFrames[${textFrameIndex}].textRange`;
@@ -63,20 +211,20 @@ function mapOverChars(textFrameIndex, toFixLength, charIndex, toUpper = true) {
     return true
 }
 
+let words_to_fix = [];
+let words_to_change = [];
+
 function fixFonts(e) {
-
-    let words_to_fix = [];
-    let words_to_change = [];
-
     downlodFile('https://raw.githubusercontent.com/tvorogme/ai_plugin/master/font_fix', (data) => {
         words_to_fix = data.split('\n').slice(0, -1).map(word => word.toLowerCase()).map(fixBeforeRegex).map(toRegex);
+        //console.log("WordsToFix", words_to_fix);
 
         //фразы для замены
         downlodFile('https://raw.githubusercontent.com/tvorogme/ai_plugin/master/words_fix', (data_change) => {
-            console.log(data_change);
+            //console.log(data_change);
             words_to_change = data_change.split('\n').slice(0, -1).map((e, index) => words_to_change[index] = (e + '').split(';'));
             words_to_change.map((element, index) => {
-                let newElem = {};
+                const newElem = {};
                 newElem.searchString = element[0]; //исходная строка поиска
                 newElem.searchRegexp = toRegex(fixBeforeRegex(element[0])); //регексп строки поиска
 
@@ -84,11 +232,7 @@ function fixFonts(e) {
                 newElem.replaceRegexp = toRegex(fixBeforeRegex(element[1])); //регексп поиска
 
                 words_to_change[index] = newElem;
-
-                // words_to_change[index].push(element[0]);
-                // words_to_change[index].push(toRegex(fixBeforeRegex(element[1])));
-                // words_to_change[index]. = ;
-                // words_to_change[index][1] = element[1];
+                //console.log(newElem);
             });
             console.log("Words_to_change:", words_to_change);
             // достаем длину текст фреймов
@@ -103,76 +247,9 @@ function fixFonts(e) {
                         //достаём количество параграфов
                         run(`app.activeDocument.textFrames[${textFrameIndex}].paragraphs.length`, (paragraphsLength) => {
 
-                            //замена слов
-                            //бежим по параграфам
-                            range(parseInt(paragraphsLength)).map((paragraphIndex) => {
+                            //рекурсивная функция склейки всех параграфов по \n и вызов функции заены слов
+                            getTextFrameFullText(textFrameIndex, paragraphsLength, 0, "");
 
-                                //достаём текст каждого параграфа
-                                run(`app.activeDocument.textFrames[${textFrameIndex}].paragraphs[${paragraphIndex}].contents`, (paragraphText) => {
-
-                                    let flag = false; //была ли сделана хотя бы 1 замена
-
-                                    words_to_change.map((regex) => {
-                                        if (paragraphText.search(regex.replaceRegexp) !== -1 &&
-                                            regex.replaceString.indexOf('*') === -1 && regex.searchString.indexOf('*') === -1 &&
-                                            regex.replaceString.search(regex.searchRegexp) !== -1) {
-
-                                            flag = true;
-                                            paragraphText = paragraphText.replace(regex.replaceRegexp, regex.searchString);
-                                        }
-                                    });
-
-
-                                    //бежим по словам, котрые хотим заемнить
-                                    words_to_change.map((regex) => {
-
-                                        console.log("Text:" + paragraphText + "\nFinding:" + regex.searchString +
-                                            "\nRegexp:" + regex.searchRegexp + "\nIndex:" + paragraphText.search(regex.searchRegexp));
-
-                                        //проверка на то есть ли регексп в тексте
-                                        if (paragraphText.search(regex.searchRegexp) !== -1) {
-                                            console.log("Found");
-                                            //console.log("Text:", paragraphText, "\nRegex: ", regex);
-
-                                            //будет сделана замена
-                                            flag = true;
-
-                                            //заменеям все регексы
-                                            paragraphText = paragraphText.replace(regex.searchRegexp, (found) => {
-
-                                                //проверка на то, есть ли в регексе *
-                                                if (regex.replaceString.indexOf('*') !== -1) {
-
-                                                    //если да то в финальную строку подставляем слова которые нужно оставить (работает плохо)
-                                                    let res = regex.replaceString.split(" ");
-                                                    let replaces = [];
-                                                    let sfound = found.split(" ");
-
-                                                    regex.searchString.split(" ").map((elem, index) => {
-                                                        if (elem === "*")
-                                                            replaces.push(sfound[index]);
-                                                    });
-
-                                                    let starIter = 0;
-                                                    range(res.length).map((index) => {
-                                                        if (res[index] === "*")
-                                                            res[index] = replaces[starIter++];
-                                                    });
-                                                    return res.join(" ");
-                                                }
-                                                //если нет то просто заменяем на нужную строку
-                                                else {
-                                                    return regex.replaceString;
-                                                }
-                                            });
-                                        }
-                                    });
-                                    //меняем текст только если была замена, чтобы лишний раз стили не портить
-                                    if (flag) {
-                                        run(`app.activeDocument.textFrames[${textFrameIndex}].paragraphs[${paragraphIndex}].contents="${paragraphText}"`);
-                                    }
-                                });
-                            });
                         });//конец замены слов
 
                         // сравним его с тем, который нужно преобразовать
