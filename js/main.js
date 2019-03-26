@@ -52,7 +52,7 @@ function changeWords(textFrameIndex, frameText) {
         let result;
         let alreadyGood = [];
         while (result = regex.exec(frameText)) {
-            alreadyGood.push(result.index);
+            alreadyGood.push([result.index, result[0].length]);
         }
         return alreadyGood;
     }
@@ -79,9 +79,8 @@ function changeWords(textFrameIndex, frameText) {
             replaceCount++;
 
             //проверка на то, что текущее вхождение уже правильное, если да, то просто возвращаем его же
-            // если искомая строка содержит в себе строку для заминения, то в любом случае заменяем(первое условие)
-            if ( found.search(replaceRegexp) === -1 && rrIndexes.filter(
-                (rrIndex) => rrIndex <= srIndexes[replaceCount - 1] && rrIndex + found.length >= srIndexes[replaceCount - 1])
+            if (rrIndexes.filter(
+                (rrIndex) => rrIndex[0] <= srIndexes[replaceCount - 1][0] && rrIndex[0]+rrIndex[1] >= srIndexes[replaceCount - 1][0] + srIndexes[replaceCount - 1][1])
                 .length > 0) {
                 return found;
             }
