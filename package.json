@@ -8,7 +8,7 @@
     "request": "^2.85.0"
   },
   "devDependencies": {
-    "fstream": "^1.0.11",
+    "fstream": "^1.0.12",
     "node-stream-zip": "^1.8.0",
     "unzip": "^0.1.11",
     "unzipper": "^0.9.11"
